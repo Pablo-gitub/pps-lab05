@@ -151,17 +151,14 @@ object OnlineCoursePlatform:
         case Just(course) =>
           if !hasStudent(studentId) then
             students = Cons(StudentImpl(studentId), students)
-          students.find(_.studentId == studentId) match
-            case Just(student) => student.addCourse(course)
-            case Empty() => ()
+          students.find(_.studentId == studentId).map(_.addCourse(course))
         case Empty() => ()
 
     override def unenrollStudent(studentId: String, courseId: String): Unit =
       getCourse(courseId) match
         case Just(course) =>
-          students.find(_.studentId == studentId) match
-            case Just(student) => student.removeCourse(course)
-            case Empty() => ()
+          if !hasStudent(studentId) then
+            students.find(_.studentId == studentId).map(_.removeCourse(course))
         case Empty() => ()
 
     override def getStudentEnrollments(studentId: String): Sequence[Course] =
