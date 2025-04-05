@@ -1,7 +1,8 @@
 package ex
 
+import ex.Student.StudentImpl
 import util.Optionals.Optional
-import util.Optionals.Optional.Empty
+import util.Optionals.Optional.{Empty, Just}
 import util.Sequences.*
 import util.Sequences.Sequence.* // Assuming Sequence and related methods are here
 
@@ -12,19 +13,18 @@ trait Course:
   def instructor: String
   def category: String // e.g., "Programming", "Data Science", "Design"
 
-class CourseImpl(protected var _courseId: String, protected var _title: String, protected var _instructor: String, protected var _category: String) extends Course:
-  override def courseId: String = _courseId
-
-  override def title: String = _title
-
-  override def instructor: String = _instructor
-
-  override def category: String = _category
-
-  override def toString: String = s"Course($courseId, $title, $instructor, $category)"
-
 
 object Course:
+  private case class CourseImpl(protected var _courseId: String, protected var _title: String, protected var _instructor: String, protected var _category: String) extends Course:
+    override def courseId: String = _courseId
+
+    override def title: String = _title
+
+    override def instructor: String = _instructor
+
+    override def category: String = _category
+
+    override def toString: String = s"Course($courseId, $title, $instructor, $category)"
   // Factory method for creating Course instances
   def apply(courseId: String, title: String, instructor: String, category: String): Course = CourseImpl(courseId: String, title: String, instructor: String, category: String)
 /**
@@ -105,71 +105,75 @@ trait Student:
   def removeCourse(course: Course): Unit
   def hasCourse(course: Course): Boolean
 
-class StudentImpl(protected var _studentId: String) extends Student:
-  private var enrolledCourses: Sequence[Course] = Nil()
+object Student:
+  case class StudentImpl(protected var _studentId: String) extends Student:
+    private var enrolledCourses: Sequence[Course] = Nil()
 
-  override def studentId: String = _studentId
+    override def studentId: String = _studentId
 
-  override def getCourses: Sequence[Course] = enrolledCourses
+    override def getCourses: Sequence[Course] = enrolledCourses
 
-  override def addCourse(course: Course): Unit =
-    if !hasCourse(course) then
-      enrolledCourses = Cons(course, enrolledCourses)
+    override def addCourse(course: Course): Unit =
+      if !hasCourse(course) then
+        enrolledCourses = Cons(course, enrolledCourses)
 
-  override def removeCourse(course: Course): Unit = enrolledCourses = enrolledCourses.filter(_ != course)
+    override def removeCourse(course: Course): Unit = enrolledCourses = enrolledCourses.filter(_ != course)
 
-  override def hasCourse(course: Course): Boolean = enrolledCourses.find(_ == course) match
-    case Empty() => false
-    case _ => true
-
-class OnlineCoursePlatformImpl extends OnlineCoursePlatform:
-  var courses: Sequence[Course] = Nil()
-  var students: Sequence[Student] = Nil()
-
-  override def addCourse(course: Course): Unit = courses = Cons(course, courses)
-
-  override def findCoursesByCategory(category: String): Sequence[Course] = courses.filter(_.category == category)
-
-  override def getCourse(courseId: String): Optional[Course] = courses.find(_.courseId == courseId)
-
-  override def removeCourse(course: Course): Unit = courses = courses.filter(_ != course)
-
-  override def isCourseAvailable(courseId: String): Boolean = getCourse(courseId) match
-    case Empty() => false
-    case _ => true
-
-  def hasStudent(studentId: String): Boolean =
-    students.find(_.studentId == studentId) match
-    case Empty() => false
-    case _ => true
-
-  override def enrollStudent(studentId: String, courseId: String): Unit =
-    getCourse(courseId).map { course =>
-      if !hasStudent(studentId) then
-        students = Cons(new StudentImpl(studentId), students)
-
-      students.find(_.studentId == studentId).map(_.addCourse(course))
-    }
-
-  override def unenrollStudent(studentId: String, courseId: String): Unit =
-    getCourse(courseId).map { course =>
-      if hasStudent(studentId) then
-        students.find(_.studentId == studentId).map(_.removeCourse(course))
-    }
-
-  override def getStudentEnrollments(studentId: String): Sequence[Course] =
-    students
-      .find(_.studentId == studentId)
-      .map(_.getCourses)
-      .orElse(Nil())
-
-  override def isStudentEnrolled(studentId: String, courseId: String): Boolean =
-    getCourse(courseId).map { course =>
-      students.find(_.studentId == studentId).map(_.hasCourse(course)).orElse(false)
-    }.orElse(false)
+    override def hasCourse(course: Course): Boolean = enrolledCourses.find(_ == course) match
+      case Empty() => false
+      case _ => true
 
 
 object OnlineCoursePlatform:
+  private case class OnlineCoursePlatformImpl() extends OnlineCoursePlatform:
+    var courses: Sequence[Course] = Nil()
+    var students: Sequence[Student] = Nil()
+
+    override def addCourse(course: Course): Unit = courses = Cons(course, courses)
+
+    override def findCoursesByCategory(category: String): Sequence[Course] = courses.filter(_.category == category)
+
+    override def getCourse(courseId: String): Optional[Course] = courses.find(_.courseId == courseId)
+
+    override def removeCourse(course: Course): Unit = courses = courses.filter(_ != course)
+
+    override def isCourseAvailable(courseId: String): Boolean = getCourse(courseId) match
+      case Empty() => false
+      case _ => true
+
+    def hasStudent(studentId: String): Boolean =
+      students.find(_.studentId == studentId) match
+        case Empty() => false
+        case _ => true
+
+    override def enrollStudent(studentId: String, courseId: String): Unit =
+      getCourse(courseId) match
+        case Just(course) =>
+          if !hasStudent(studentId) then
+            students = Cons(StudentImpl(studentId), students)
+          students.find(_.studentId == studentId) match
+            case Just(student) => student.addCourse(course)
+            case Empty() => ()
+        case Empty() => ()
+
+    override def unenrollStudent(studentId: String, courseId: String): Unit =
+      getCourse(courseId) match
+        case Just(course) =>
+          students.find(_.studentId == studentId) match
+            case Just(student) => student.removeCourse(course)
+            case Empty() => ()
+        case Empty() => ()
+
+    override def getStudentEnrollments(studentId: String): Sequence[Course] =
+      students
+        .find(_.studentId == studentId)
+        .map(_.getCourses)
+        .orElse(Nil())
+
+    override def isStudentEnrolled(studentId: String, courseId: String): Boolean =
+      getCourse(courseId).map { course =>
+        students.find(_.studentId == studentId).map(_.hasCourse(course)).orElse(false)
+      }.orElse(false)
   // Factory method for creating an empty platform instance
   def apply(): OnlineCoursePlatform = new OnlineCoursePlatformImpl // Fill Here!
 

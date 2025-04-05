@@ -23,23 +23,23 @@ trait Vector2D:
   // Magnitude (length): ||(x, y)|| = sqrt(x*x + y*y)
   def magnitude: Double
 
-class Vector2DImpl(protected var _x: Double, protected var _y: Double) extends Vector2D:
-
-  override def x: Double = _x
-
-  override def y: Double = _y
-
-  override def +(other: Vector2D): Vector2D = new Vector2DImpl(_x + other.x, _y + other.y)
-
-  override def -(other: Vector2D): Vector2D = new Vector2DImpl(_x - other.x, _y - other.y)
-
-  override def *(scalar: Double): Vector2D = new Vector2DImpl(scalar * _x, scalar * _y)
-
-  override def dot(other: Vector2D): Double = _x * other.x + _y * other.y
-
-  override def magnitude: Double = Math.sqrt(this.dot(new Vector2DImpl(_x, _y)))
-
 object Vector2D:
+  private case class Vector2DImpl(protected var _x: Double, protected var _y: Double) extends Vector2D:
+
+    override def x: Double = _x
+
+    override def y: Double = _y
+
+    override def +(other: Vector2D): Vector2D = new Vector2DImpl(_x + other.x, _y + other.y)
+
+    override def -(other: Vector2D): Vector2D = new Vector2DImpl(_x - other.x, _y - other.y)
+
+    override def *(scalar: Double): Vector2D = new Vector2DImpl(scalar * _x, scalar * _y)
+
+    override def dot(other: Vector2D): Double = _x * other.x + _y * other.y
+
+    override def magnitude: Double = Math.sqrt(this.dot(new Vector2DImpl(_x, _y)))
+
   // Factory method to create Vector2D instances
   def apply(x: Double, y: Double): Vector2D = new Vector2DImpl(x, y)
 
