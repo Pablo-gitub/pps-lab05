@@ -23,9 +23,24 @@ trait Vector2D:
   // Magnitude (length): ||(x, y)|| = sqrt(x*x + y*y)
   def magnitude: Double
 
+class Vector2DImpl(protected var _x: Double, protected var _y: Double) extends Vector2D:
+  override def x: Double = _x
+
+  override def y: Double = _y
+
+  override def +(other: Vector2D): Vector2D = new Vector2DImpl(this.x + other.x, this.y + other.y)
+
+  override def -(other: Vector2D): Vector2D = new Vector2DImpl(this.x - other.x, this.y - other.y)
+
+  override def *(scalar: Double): Vector2D = new Vector2DImpl(scalar * this.x, scalar * this.y)
+
+  override def dot(other: Vector2D): Double = this.x * other.x + this.y * other.y
+
+  override def magnitude: Double = Math.sqrt(this.dot(new Vector2DImpl(_x, _y)))
+
 object Vector2D:
   // Factory method to create Vector2D instances
-  def apply(x: Double, y: Double): Vector2D = ???
+  def apply(x: Double, y: Double): Vector2D = new Vector2DImpl(x, y)
 
   // Common vectors (optional but nice)
   val zero: Vector2D = apply(0.0, 0.0)
