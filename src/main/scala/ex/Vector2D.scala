@@ -30,18 +30,18 @@ object Vector2D:
 
     override def y: Double = _y
 
-    override def +(other: Vector2D): Vector2D = new Vector2DImpl(_x + other.x, _y + other.y)
+    override def +(other: Vector2D): Vector2D = Vector2DImpl(_x + other.x, _y + other.y)
 
-    override def -(other: Vector2D): Vector2D = new Vector2DImpl(_x - other.x, _y - other.y)
+    override def -(other: Vector2D): Vector2D = Vector2DImpl(_x - other.x, _y - other.y)
 
-    override def *(scalar: Double): Vector2D = new Vector2DImpl(scalar * _x, scalar * _y)
+    override def *(scalar: Double): Vector2D = Vector2DImpl(scalar * _x, scalar * _y)
 
     override def dot(other: Vector2D): Double = _x * other.x + _y * other.y
 
-    override def magnitude: Double = Math.sqrt(this.dot(new Vector2DImpl(_x, _y)))
+    override def magnitude: Double = Math.sqrt(this.dot(Vector2DImpl(_x, _y)))
 
   // Factory method to create Vector2D instances
-  def apply(x: Double, y: Double): Vector2D = new Vector2DImpl(x, y)
+  def apply(x: Double, y: Double): Vector2D = Vector2DImpl(x, y)
 
   // Common vectors (optional but nice)
   val zero: Vector2D = apply(0.0, 0.0)
