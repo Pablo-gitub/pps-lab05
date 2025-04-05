@@ -126,8 +126,8 @@ object Student:
 
 object OnlineCoursePlatform:
   private case class OnlineCoursePlatformImpl() extends OnlineCoursePlatform:
-    var courses: Sequence[Course] = Nil()
-    var students: Sequence[Student] = Nil()
+    private var courses: Sequence[Course] = Nil()
+    private var students: Sequence[Student] = Nil()
 
     override def addCourse(course: Course): Unit = courses = Cons(course, courses)
 
@@ -141,7 +141,7 @@ object OnlineCoursePlatform:
       case Empty() => false
       case _ => true
 
-    def hasStudent(studentId: String): Boolean =
+    private def hasStudent(studentId: String): Boolean =
       students.find(_.studentId == studentId) match
         case Empty() => false
         case _ => true
