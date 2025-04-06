@@ -1,11 +1,33 @@
 package polyglot.a05b
 
-import polyglot.a05b.Logics
+trait Pair[X]:
+  def x: X
+  def y: X
+  def equals(other: Pair[X]): Boolean
+
+object Pair:
+  def apply[X](x: X, y: X): Pair[X] = new PairImpl(x, y)
+
+  private case class PairImpl[X](x: X, y: X) extends Pair[X]:
+    override def equals(other: Pair[X]): Boolean = other.x == x && other.y == y
 
 /** solution and descriptions at https://bitbucket.org/mviroli/oop2019-esami/src/master/a05b/sol2/ */
 class LogicsImpl(private val size: Int) extends Logics:
-  override def tick(): Unit = {}
 
-  override def isOver: Boolean = false
+  private val random = new scala.util.Random()
 
-  override def hasElement(x: Int, y: Int): Boolean = false
+  private var tickCount: Int = 0
+
+  private val initial: Pair[Int] = Pair(random.between(1, size - 1), random.between(1, size - 1))
+
+  override def tick(): Unit = tickCount += 1
+
+  override def isOver: Boolean =
+    initial.y - tickCount < 0 || initial.y + tickCount >= this.size ||
+    initial.x - tickCount < 0 || initial.x + tickCount >= this.size;
+
+  override def hasElement(x: Int, y: Int): Boolean =
+    (x == initial.x && (y-initial.y).abs <= tickCount) ||
+    (y == initial.y && (x-initial.x).abs <= tickCount) ||
+    (x-y == initial.x-initial.y && (x-initial.x).abs <= tickCount) ||
+    (x+y == initial.x+initial.y && (x-initial.x).abs <= tickCount)
