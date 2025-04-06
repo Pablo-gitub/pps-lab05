@@ -1,15 +1,15 @@
 package polyglot.a05b
 
-trait Pair[X]:
+trait Pair[X, Y]:
   def x: X
-  def y: X
-  def equals(other: Pair[X]): Boolean
+  def y: Y
+  def equals(other: Pair[X,Y]): Boolean
 
 object Pair:
-  def apply[X](x: X, y: X): Pair[X] = new PairImpl(x, y)
+  def apply[X, Y](x: X, y: Y): Pair[X, Y] = PairImpl(x, y)
 
-  private case class PairImpl[X](x: X, y: X) extends Pair[X]:
-    override def equals(other: Pair[X]): Boolean = other.x == x && other.y == y
+  private case class PairImpl[X, Y](x: X, y: Y) extends Pair[X, Y]:
+    override def equals(other: Pair[X, Y]): Boolean = other.x == x && other.y == y
 
 /** solution and descriptions at https://bitbucket.org/mviroli/oop2019-esami/src/master/a05b/sol2/ */
 class LogicsImpl(private val size: Int) extends Logics:
@@ -18,7 +18,7 @@ class LogicsImpl(private val size: Int) extends Logics:
 
   private var tickCount: Int = 0
 
-  private val initial: Pair[Int] = Pair(random.between(1, size - 1), random.between(1, size - 1))
+  private val initial: Pair[Int, Int] = Pair(random.between(1, size - 1), random.between(1, size - 1))
 
   override def tick(): Unit = tickCount += 1
 
