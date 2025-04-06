@@ -21,7 +21,7 @@ class LogicsImpl(private val size: Int, private val mines: Int) extends Logics:
   @tailrec
   private def setMines(mines: Int): Unit = {
     if (mines > 0) {
-      val newMine = Pair(random.between(1, size - 1), random.between(1, size - 1))
+      val newMine = Pair(random.nextInt(size), random.nextInt(size))
 
       if (!mineSet.contains(newMine)) {
         mineSet = Cons(newMine, mineSet)
