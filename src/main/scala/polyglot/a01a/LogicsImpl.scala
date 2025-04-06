@@ -18,6 +18,8 @@ class LogicsImpl(private val size: Int, private val boat: Int) extends Logics:
   private val boatRow: Int = random.nextInt(size)
   private val boatLeftCol: Int = random.nextInt(size - boat + 1)
 
+  println("x = "+this.boatLeftCol+" y = "+this.boatRow)
+
   private def sizeSequence[X](seq: Sequence[X]): Int = {
     @tailrec
     def counterElements[Y](seq: Sequence[Y], count: Int): Int = seq match
